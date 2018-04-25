@@ -1,3 +1,5 @@
+//Rishav Sinha rxs150531 - rxs150531@utdallas.edu
+//Program 6
 #include <iostream>
 #include "cdk.h"
 #include <string>
