@@ -36,20 +36,12 @@ int main()
   int		boxWidths[] = {BOX_WIDTH, BOX_WIDTH, BOX_WIDTH, BOX_WIDTH, BOX_WIDTH, BOX_WIDTH};
   int		boxTypes[] = {vMIXED, vMIXED, vMIXED, vMIXED,  vMIXED,  vMIXED};
 
-  /*
-   * Initialize the Cdk screen.
-   *
-   * Make sure the putty terminal is large enough
-   */
+
   window = initscr();
   cdkscreen = initCDKScreen(window);
 
-  /* Start CDK Colors */
   initCDKColor();
 
-  /*
-   * Create the matrix.  Need to manually cast (const char**) to (char **)
-  */
   myMatrix = newCDKMatrix(cdkscreen, CENTER, CENTER, MATRIX_HEIGHT, MATRIX_WIDTH, MATRIX_HEIGHT, MATRIX_WIDTH,
 			  MATRIX_NAME_STRING, (char **) rowTitles, (char **) columnTitles, boxWidths,
 				     boxTypes, 1, 1, ' ', ROW, true, true, false);
@@ -59,16 +51,22 @@ int main()
       printf("Error creating Matrix\n");
       _exit(1);
     }
-  stringstream ss;
-  string str;
+  stringstream ss; //exists for hex conversion to c string
+  string str; //holds string to be output to matrix
 
   ifstream input ("cs3377.bin", ios::binary);
+
+  if (!input.is_open()) //check to see if file can be opened
+    {
+     cout << "can't open file" << endl;
+     exit(1);
+    }
 
   input.read(reinterpret_cast<char *>(&magic), sizeof(magic)); // directly load bytes into uint32_t
   ss << "Magic: " << hex << magic;
   str = ss.str();
   setCDKMatrixCell(myMatrix, 1, 1, str.c_str());
-  ss.str("");
+  ss.str(""); //clear the holding var
 
   input.read(reinterpret_cast<char *>(&versionNumber), sizeof(versionNumber));	
   ss << "Version: " << hex << versionNumber;
@@ -90,13 +88,9 @@ int main()
   for(int i = 1; i <= 4; i++){
     input.read(reinterpret_cast<char *>(&strLength), sizeof(strLength));
     input.read(reinterpret_cast<char *>(&stringBuffer), sizeof(stringBuffer));
-    //cout << "stringBuffer is: ";
-    //cout << hex << stringBuffer << endl;
     string s(stringBuffer); 
     cout << "the string is: " << s << " the length of the string is: " << (int)strLength << endl;
     temp2 = (int)strLength;
-    // intStr = _itoa(temp2);
-    // temp = to_string(temp2);
     sprintf(intStr, "strlen: %d",temp2);
     setCDKMatrixCell(myMatrix, i+1, 1, intStr);
     setCDKMatrixCell(myMatrix, i+1, 2, stringBuffer);
@@ -104,19 +98,15 @@ int main()
 
   input.close();
 
-  cout << " done";
-  unsigned char ax;
-  cin >> ax;
 
-//drawCDKMatrix(myMatrix, true);
-//setCDKMatrixCell(myMatrix, 2, 2, "test");
-drawCDKMatrix(myMatrix, true);    /* required  */
 
-  /* So we can see results, pause until a key is pressed. */
-  unsigned char x;
-  cin >> x;
+  drawCDKMatrix(myMatrix, true);
 
-  // Cleanup screen
+  // delay the screen clear so results can be seen
+  unsigned char a;
+  cin >> a;
+
+  //clean screen
   endCDK();
 
 
